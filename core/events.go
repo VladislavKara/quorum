@@ -24,6 +24,9 @@ import (
 // NewTxsEvent is posted when a batch of transactions enter the transaction pool.
 type NewTxsEvent struct{ Txs []*types.Transaction }
 
+// ReannoTxsEvent is posted when a batch of local pending transactions exceed a specified duration.
+type ReannoTxsEvent struct{ Txs []*types.Transaction }
+
 // PendingStateEvent is posted pre mining and notifies of pending state changes.
 type PendingStateEvent struct{}
 
