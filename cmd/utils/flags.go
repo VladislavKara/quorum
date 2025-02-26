@@ -398,6 +398,11 @@ var (
 		Usage: "Duration for announcing local pending transactions again (default = 10 years, minimum = 1 minute)",
 		Value: ethconfig.Defaults.TxPool.ReannounceTime,
 	}
+	TxPoolReannounceMaxNumFlag = cli.IntFlag{
+		Name:  "txpool.reannouncemaxnum",
+		Usage: "Count transactions for announcing local pending transactions again (default = 1024, minimum = 1024)",
+		Value: ethconfig.Defaults.TxPool.ReannounceMaxNum,
+	}
 	// Performance tuning settings
 	CacheFlag = cli.IntFlag{
 		Name:  "cache",
@@ -1748,6 +1753,9 @@ func setTxPool(ctx *cli.Context, cfg *core.TxPoolConfig) {
 	}
 	if ctx.GlobalIsSet(TxPoolReannounceTimeFlag.Name) {
 		cfg.ReannounceTime = ctx.GlobalDuration(TxPoolReannounceTimeFlag.Name)
+	}
+	if ctx.GlobalIsSet(TxPoolReannounceMaxNumFlag.Name) {
+		cfg.ReannounceMaxNum = ctx.GlobalInt(TxPoolReannounceMaxNumFlag.Name)
 	}
 }
 

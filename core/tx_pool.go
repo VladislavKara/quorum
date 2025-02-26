@@ -168,9 +168,9 @@ type TxPoolConfig struct {
 	AccountQueue uint64 // Maximum number of non-executable transaction slots permitted per account
 	GlobalQueue  uint64 // Maximum number of non-executable transaction slots for all accounts
 
-	Lifetime       time.Duration // Maximum amount of time non-executable transaction are queued
-	ReannounceTime time.Duration // Duration for announcing local pending transactions again
-
+	Lifetime         time.Duration // Maximum amount of time non-executable transaction are queued
+	ReannounceTime   time.Duration // Duration for announcing local pending transactions again
+	ReannounceMaxNum int
 }
 
 // DefaultTxPoolConfig contains the default configurations for the transaction
@@ -187,8 +187,9 @@ var DefaultTxPoolConfig = TxPoolConfig{
 	AccountQueue: 64,
 	GlobalQueue:  1024,
 
-	Lifetime:       3 * time.Hour,
-	ReannounceTime: 10 * 365 * 24 * time.Hour,
+	Lifetime:         3 * time.Hour,
+	ReannounceTime:   10 * 365 * 24 * time.Hour,
+	ReannounceMaxNum: 1024,
 }
 
 // sanitize checks the provided user configurations and changes anything that's
@@ -230,6 +231,10 @@ func (config *TxPoolConfig) sanitize() TxPoolConfig {
 	if conf.ReannounceTime < time.Minute {
 		log.Warn("Sanitizing invalid txpool reannounce time", "provided", conf.ReannounceTime, "updated", time.Minute)
 		conf.ReannounceTime = time.Minute
+	}
+	if conf.ReannounceMaxNum < txReannoMaxNum {
+		log.Warn("Sanitizing invalid txpool reannounce count", "provided", conf.ReannounceMaxNum, "updated", time.Minute)
+		conf.ReannounceMaxNum = txReannoMaxNum
 	}
 	return conf
 }
@@ -418,7 +423,7 @@ func (pool *TxPool) loop() {
 							break
 						}
 						txs = append(txs, tx)
-						if len(txs) >= txReannoMaxNum {
+						if len(txs) >= pool.config.ReannounceMaxNum {
 							return txs
 						}
 					}
